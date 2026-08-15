@@ -1,0 +1,32 @@
+{
+  "name": "career-copilot-android",
+  "version": "0.1.0",
+  "private": true,
+  "main": "expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "web": "expo start --web",
+    "web:static": "node scripts/serve-static.mjs web-preview 4173",
+    "android": "expo run:android",
+    "prebuild:android": "expo prebuild --platform android",
+    "apk:debug": "expo prebuild --platform android && cd android && gradlew assembleDebug",
+    "typecheck": "tsc --noEmit",
+    "ios": "expo run:ios"
+  },
+  "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "expo": "^54.0.0",
+    "expo-print": "~15.0.0",
+    "expo-sharing": "~14.0.0",
+    "expo-system-ui": "~6.0.9",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.81.5",
+    "react-native-web": "~0.21.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.1.0",
+    "typescript": "~5.9.2"
+  }
+}

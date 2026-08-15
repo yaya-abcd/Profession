@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "生涯舵手",
+    "slug": "career-copilot-android",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/cover.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#f6f2eb"
+    },
+    "assetBundlePatterns": [
+      "assets/*"
+    ],
+    "android": {
+      "package": "com.careercopilot.local",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#f6f2eb"
+      },
+      "permissions": []
+    }
+  }
+}

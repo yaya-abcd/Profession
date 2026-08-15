@@ -1,0 +1,664 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>生涯舵手｜网页预览</title>
+    <style>
+      :root {
+        --bg: #f5f2ed;
+        --surface: #fff;
+        --ink: #17212b;
+        --muted: #65717d;
+        --line: #e5ddd1;
+        --teal: #2f7f7a;
+        --coral: #e77759;
+        --violet: #7567b8;
+        --amber: #b9813c;
+        --green: #3f8a5f;
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      button, input, textarea, select { font: inherit; }
+      button { cursor: pointer; }
+      .app { max-width: 1180px; margin: 0 auto; min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; gap: 18px; padding: 18px; }
+      .sidebar { position: sticky; top: 18px; height: calc(100vh - 36px); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; display: flex; flex-direction: column; }
+      .brand { display: flex; gap: 12px; align-items: center; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+      .brand-mark { width: 42px; height: 42px; border-radius: 12px; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 900; }
+      .brand b { display: block; font-size: 18px; }
+      .brand small { color: var(--muted); font-weight: 700; }
+      nav { display: grid; gap: 8px; margin-top: 16px; }
+      nav button { border: 0; background: transparent; color: var(--muted); text-align: left; padding: 12px; border-radius: 12px; font-weight: 800; display: flex; gap: 10px; align-items: center; }
+      nav button.active { background: var(--ink); color: #fff; }
+      .side-card { margin-top: auto; background: #f6f1e9; border-radius: 14px; padding: 14px; }
+      .content { min-width: 0; }
+      .topbar { display: flex; justify-content: space-between; gap: 16px; align-items: center; margin-bottom: 14px; }
+      .topbar small { color: var(--muted); font-weight: 700; }
+      .topbar h1 { margin: 4px 0 0; font-size: 28px; }
+      .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; }
+      .card { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 16px; box-shadow: 0 18px 40px rgba(23,33,43,.06); }
+      .hero { min-height: 360px; border-radius: 22px; overflow: hidden; background: linear-gradient(rgba(23,33,43,.18), rgba(23,33,43,.62)), url("../assets/cover.png") center / cover; display: flex; align-items: end; padding: 28px; color: #fff; }
+      .hero h2 { margin: 8px 0; font-size: clamp(30px, 5vw, 52px); line-height: 1.05; max-width: 680px; }
+      .hero p { max-width: 560px; color: rgba(255,255,255,.86); line-height: 1.7; }
+      .span-12 { grid-column: span 12; }
+      .span-8 { grid-column: span 8; }
+      .span-6 { grid-column: span 6; }
+      .span-4 { grid-column: span 4; }
+      .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+      .stat b { display: block; font-size: 30px; color: var(--teal); }
+      .stat span, .muted { color: var(--muted); }
+      .section-title { display: flex; justify-content: space-between; gap: 12px; align-items: start; margin-bottom: 12px; }
+      .section-title h2, .section-title h3 { margin: 0; }
+      .section-title p { margin: 5px 0 0; color: var(--muted); line-height: 1.6; }
+      .actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
+      .primary, .secondary, .danger { border: 0; border-radius: 12px; padding: 11px 14px; font-weight: 900; }
+      .primary { background: var(--ink); color: #fff; }
+      .secondary { background: #f1ece4; color: var(--ink); }
+      .danger { background: rgba(231,119,89,.13); color: var(--coral); }
+      input, textarea, select { width: 100%; border: 1px solid var(--line); background: #fbfaf8; color: var(--ink); border-radius: 12px; padding: 12px; outline: none; }
+      textarea { min-height: 120px; resize: vertical; line-height: 1.6; }
+      label { display: grid; gap: 7px; color: var(--ink); font-weight: 800; margin: 0 0 12px; }
+      .chips { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 12px; }
+      .chip { border: 0; background: #f2eee8; color: var(--muted); border-radius: 999px; padding: 9px 12px; font-size: 13px; font-weight: 900; }
+      .chip.active { background: var(--ink); color: #fff; }
+      .row { display: flex; gap: 12px; align-items: start; padding: 12px 0; border-bottom: 1px solid #f0ece5; }
+      .row:last-child { border-bottom: 0; }
+      .row h4 { margin: 0 0 5px; }
+      .row p { margin: 0; color: var(--muted); line-height: 1.55; }
+      .tag { display: inline-flex; border-radius: 999px; background: rgba(47,127,122,.12); color: var(--teal); padding: 5px 8px; font-weight: 900; font-size: 12px; white-space: nowrap; }
+      .empty { background: #fbfaf8; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); padding: 18px; text-align: center; }
+      .job-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+      .job-card h3 { margin: 0; }
+      .job-card p { color: var(--muted); line-height: 1.6; }
+      .meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; }
+      .meta div { background: #fbfaf8; border: 1px solid #eee8df; border-radius: 12px; padding: 10px; }
+      .meta small { color: var(--muted); display: block; }
+      .meta b { margin-top: 4px; display: block; }
+      .todo.done { opacity: .62; }
+      .check { width: 28px; height: 28px; border-radius: 999px; border: 2px solid var(--teal); display: grid; place-items: center; flex: 0 0 auto; color: var(--teal); font-weight: 900; }
+      .paper { background: #fffdf9; border: 1px solid #e7dfd4; border-radius: 14px; padding: 22px; }
+      .paper h1 { margin: 0 0 4px; }
+      .paper h2 { font-size: 16px; border-bottom: 1px solid var(--line); padding-bottom: 6px; margin-top: 20px; }
+      .star { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+      .star article { background: #fbfaf8; border: 1px solid #eee8df; border-radius: 12px; padding: 12px; min-height: 150px; }
+      .star b { color: var(--coral); font-size: 22px; }
+      .quote { background: rgba(47,127,122,.1); border-radius: 12px; padding: 13px; line-height: 1.7; font-weight: 800; }
+      .modal { position: fixed; inset: 0; background: rgba(23,33,43,.42); display: none; align-items: center; justify-content: center; padding: 18px; z-index: 10; }
+      .modal.show { display: flex; }
+      .modal-card { width: min(720px, 100%); max-height: 90vh; overflow: auto; background: var(--surface); border-radius: 18px; padding: 18px; }
+      .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 12px 16px; border-radius: 14px; font-weight: 900; display: none; z-index: 20; }
+      .toast.show { display: block; }
+      .mobile-note { display: none; }
+      @media (max-width: 860px) {
+        .app { display: block; padding: 12px; padding-bottom: 84px; }
+        .sidebar { position: fixed; left: 8px; right: 8px; bottom: 8px; top: auto; height: auto; z-index: 8; padding: 8px; border-radius: 22px; }
+        .brand, .side-card { display: none; }
+        nav { display: grid; grid-template-columns: repeat(6, 1fr); margin: 0; gap: 4px; }
+        nav button { justify-content: center; text-align: center; font-size: 12px; padding: 9px 4px; }
+        nav button span { display: none; }
+        .topbar { margin-top: 6px; }
+        .grid, .stats, .star { grid-template-columns: 1fr; }
+        .span-8, .span-6, .span-4, .span-12 { grid-column: auto; }
+        .hero { min-height: 430px; padding: 20px; }
+        .hero h2 { font-size: 34px; }
+        .mobile-note { display: block; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand"><div class="brand-mark">职</div><div><b>生涯舵手</b><small>CAREER COPILOT</small></div></div>
+        <nav id="nav"></nav>
+        <div class="side-card"><b>网页预览版</b><p class="muted">数据保存在当前浏览器 localStorage，用来快速检查 App 功能流程。</p></div>
+      </aside>
+      <main class="content">
+        <header class="topbar">
+          <div><small id="today"></small><h1 id="screen-title">总览</h1></div>
+          <button class="secondary" onclick="showScreen('settings')">设置与数据</button>
+        </header>
+        <div id="screen"></div>
+      </main>
+    </div>
+    <div class="modal" id="modal"><div class="modal-card" id="modal-card"></div></div>
+    <div class="toast" id="toast"></div>
+    <script>
+      const STORE = "career-copilot-web-preview-v1";
+      const cats = ["全部","泛体制","互联网大厂","出海企业","制造业","外企","其他"];
+      const timeline = [
+        ["现在至8月","定位与素材","完成母版简历、3类岗位画像，盘点实习成果"],
+        ["8至10月","秋招主战场","提前批/正式批集中投递；每周复盘转化率"],
+        ["11至12月","补录与复盘","跟进补录，补齐案例、项目和面试短板"],
+        ["2027年2至4月","春招主战场","春招、国央企补录与事业单位机会"],
+        ["2027年5至6月","毕业前收口","比较 Offer、背调签约、入职准备"]
+      ];
+      const screens = [
+        ["home","⌂","总览"],["todos","✓","To Do"],["jobs","◎","岗位"],["resumes","▤","简历"],["interviews","◉","面试"],["logs","✦","日志"]
+      ];
+      let active = "home";
+      let filter = "全部";
+      let state = load();
+
+      function blank() {
+        return { jobs: [], todos: [], logs: [], interviewReviews: [], settings: { internshipReminder: false }, resume: {
+          name: "姓名待填写", targetRole: "目标岗位待填写", updatedAt: new Date(0).toISOString(),
+          content: { contact: "手机｜邮箱｜所在城市", summary: "请填写个人优势，或从实习日志生成", education: "学校｜专业｜学历｜毕业时间", skills: [], experiences: [] }
+        }};
+      }
+      function load() { try { return { ...blank(), ...(JSON.parse(localStorage.getItem(STORE) || "null") || {}) }; } catch { return blank(); } }
+      function save() { localStorage.setItem(STORE, JSON.stringify(state)); render(); }
+      function id() { return Date.now() + Math.floor(Math.random() * 1000); }
+      function today() { return new Intl.DateTimeFormat("zh-CN", { year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date()); }
+      function esc(v) { return String(v ?? "").replace(/[&<>"']/g, s => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[s])); }
+      function toast(msg) { const el = document.querySelector("#toast"); el.textContent = "✓ " + msg; el.classList.add("show"); setTimeout(() => el.classList.remove("show"), 2200); }
+      function showScreen(key) { active = key; render(); }
+      function modal(html) { document.querySelector("#modal-card").innerHTML = html; document.querySelector("#modal").classList.add("show"); }
+      function closeModal() { document.querySelector("#modal").classList.remove("show"); document.querySelector("#modal-card").innerHTML = ""; }
+      document.querySelector("#modal").addEventListener("click", e => { if (e.target.id === "modal") closeModal(); });
+
+      function analyze(raw) {
+        const lines = raw.split(/\n|；|。/).map(x => x.trim()).filter(Boolean);
+        const evidence = (raw.match(/\d+(?:\.\d+)?%?|[一二三四五六七八九十]+(?:个|次|天|周|方|条|项)/g) || []).join("、");
+        const rules = [[/协调|沟通|对接|跨部门|推动|共识/,"跨团队协作"],[/分析|数据|指标|报表|转化|漏斗/,"数据分析"],[/用户|调研|反馈|需求|访谈/,"用户洞察"],[/方案|产品|功能|原型|体验/,"产品思维"],[/提前|上线|交付|进度|排期|里程碑/,"项目推进"],[/复盘|优化|改进|迭代|沉淀/,"持续优化"],[/海外|国际|英文|本地化|出海/,"国际化视野"],[/主动|独立|负责|牵头|主导/,"主人翁意识"]];
+        const abilities = rules.filter(([r]) => r.test(raw)).map(([,x]) => x).slice(0,4);
+        if (!abilities.length) abilities.push("执行与交付");
+        const situation = lines[0] || "待补充业务背景";
+        const task = lines.find(x => /负责|目标|需要|任务|希望|要求/.test(x)) || "待明确你的目标与职责边界";
+        const action = lines.filter(x => /协调|分析|制定|推动|搭建|优化|完成|跟进|输出|整理|确认/.test(x)).slice(0,3).join("；") || lines.slice(1,3).join("；") || "待补充关键行动";
+        const result = lines.find(x => /提升|增长|降低|完成|上线|结果|提前|转化|节省|沉淀/.test(x)) || (evidence ? `取得了可量化结果：${evidence}` : "待补充可量化结果");
+        const questions = [
+          !/背景|因为|当时|面临/.test(raw) && "这件事发生在什么业务背景下？当时最关键的限制是什么？",
+          !/负责|目标|需要|任务/.test(raw) && "你的个人目标和职责边界是什么？哪些部分是你主导的？",
+          !/协调|分析|制定|推动|优化|输出/.test(raw) && "你具体做了哪些关键动作？为什么选择这种做法？",
+          !evidence && "结果可以用什么数字衡量？例如效率、时间、用户量、转化率或成本。",
+          "如果重做一次，你会保留什么、改变什么？这反映了你的哪项判断？"
+        ].filter(Boolean).slice(0,4);
+        return { situation, task, action, result, abilities, questions, bullet: `${action}，${result}${evidence && !result.includes(evidence) ? `（${evidence}）` : ""}。` };
+      }
+
+      function parseJobs(text) {
+        return text.split(/\n{2,}|-{3,}|={3,}/).map(x => x.trim()).filter(Boolean).map((chunk, i) => {
+          const lines = chunk.split(/\n/).map(x => x.trim()).filter(Boolean);
+          const parts = (lines[0] || chunk).split(/[｜|,，:：]/).map(x => x.trim()).filter(Boolean);
+          const category = /国企|央企|事业|银行|证券|体制/.test(chunk) ? "泛体制" : /出海|海外|国际|跨境|SHEIN|TikTok/.test(chunk) ? "出海企业" : /制造|供应链|工厂|汽车|新能源/.test(chunk) ? "制造业" : /外企|英文|全球|consulting|FMCG/.test(chunk) ? "外企" : /互联网|产品|运营|增长|平台|腾讯|阿里|字节|美团/.test(chunk) ? "互联网大厂" : "其他";
+          return { id: id()+i, company: parts[0] || "待确认公司", role: parts[1] || lines.find(x => /岗|实习|管培|经理|分析|运营/.test(x)) || "待确认岗位", category, tier: "待评估", deadline: (chunk.match(/(截止|ddl|Deadline|deadline)[：:\s]*(\S+)/) || [])[2] || "待确认", match: 0, status: "待核实", companyIntro: /公司|业务|平台|品牌/.test(chunk) ? chunk.slice(0,80) : "待补充（原信息未提供）", requirements: lines.slice(1).join("\n") || chunk, sourceUrl: (chunk.match(/https?:\/\/\S+/) || [])[0] || "", createdAt: new Date().toISOString() };
+        });
+      }
+
+      function render() {
+        document.querySelector("#today").textContent = `${today()} · 网页预览`;
+        document.querySelector("#nav").innerHTML = screens.map(([key, icon, label]) => `<button class="${active===key?"active":""}" onclick="showScreen('${key}')"><span>${icon}</span>${label}</button>`).join("");
+        const title = ([...screens, ["settings","","设置与数据"]].find(x => x[0] === active) || [,"","总览"])[2];
+        document.querySelector("#screen-title").textContent = title;
+        document.querySelector("#screen").innerHTML = ({ home, todos, jobs, resumes, interviews, logs, settings }[active] || home)();
+      }
+
+      function home() {
+        const todayTodos = state.todos.filter(x => x.date === today());
+        const done = todayTodos.filter(x => x.status === "done").length;
+        const submitted = state.jobs.filter(x => /已投递|笔试|面试|offer/i.test(x.status)).length;
+        const readiness = Math.min(98, 28 + state.jobs.length*5 + state.logs.length*4 + state.interviewReviews.length*3 + done*4);
+        return `<section class="hero span-12"><div><small>2027 届秋招 · 本地工作台</small><h2>晚上好，今天也离理想 Offer 更近一步。</h2><p>岗位、任务、日志、简历和面试记录保存在当前浏览器。安卓 APK 中会保存在手机本地。</p><button class="primary" onclick="showScreen('timeline')">查看招聘时间线</button></div></section>
+        <div class="grid"><section class="span-12 stats">${stat("准备度", readiness+"%")}${stat("岗位池", state.jobs.length)}${stat("已投递", submitted)}${stat("今日完成", done+"/"+todayTodos.length)}</section>
+        <section class="card span-8"><div class="section-title"><div><h2>今日聚焦</h2><p>优先处理求职价值最高的待办。</p></div><button class="secondary" onclick="showScreen('todos')">打开 To Do</button></div>${state.todos.filter(x=>x.status==="todo").slice(0,3).map(x=>row(x.title, x.detail || "尚未补充背景", "待完成")).join("") || empty("今天还没有待办。")}</section>
+        <section class="card span-4"><h2>快速入口</h2><div class="actions"><button class="secondary" onclick="showScreen('jobs')">岗位情报</button><button class="secondary" onclick="showScreen('resumes')">简历工坊</button><button class="secondary" onclick="showScreen('interviews')">面试训练</button><button class="secondary" onclick="showScreen('logs')">实习日志</button></div></section>
+        <section class="card span-12"><div class="section-title"><div><h2>你的招聘时间线</h2><p>以秋招为主线，兼顾春招和毕业前收口。</p></div></div>${timeline.map((x,i)=>timeRow(x,i)).join("")}</section></div>`;
+      }
+      function stat(label, value) { return `<div class="card stat"><b>${esc(value)}</b><span>${esc(label)}</span></div>`; }
+
+      function todos() {
+        const todayTodos = state.todos.filter(x => x.date === today());
+        const planned = [...todayTodos].sort((a,b)=>scoreTodo(b)-scoreTodo(a)).slice(0,5);
+        return `<div class="grid"><section class="card span-6"><h2>新增今日 To Do</h2><label>今天要完成什么？<input id="todo-title" placeholder="例如：完成用户反馈分析并向产品经理汇报"></label><label>补充背景或预期结果<textarea id="todo-detail" placeholder="为什么要做、影响谁、希望产生什么结果"></textarea></label><button class="primary" onclick="addTodo()">＋ 加入今日清单</button></section>
+        <section class="card span-6"><h2>本地今日规划</h2><p class="muted">按紧急度、求职价值和经历沉淀价值排序。</p>${planned.map((x,i)=>row(`${i+1}. ${x.title}`, scoreTodo(x)>=3 ? "和投递、面试或交付强相关，建议优先处理。" : "建议补充截止时间或结果指标。", "规划")).join("") || empty("先加入至少一项 To Do。")}</section>
+        <section class="card span-12"><div class="section-title"><div><h2>今天的行动</h2><p>${todayTodos.filter(x=>x.status==="done").length}/${todayTodos.length} 已完成</p></div></div>${todayTodos.map(x=>`<div class="row todo ${x.status==='done'?'done':''}"><button class="check" onclick="toggleTodo(${x.id})">${x.status==='done'?'✓':''}</button><div style="flex:1"><h4>${esc(x.title)}</h4><p>${esc(x.detail || "尚未补充背景")}</p>${x.status==='done'?`<button class="secondary" onclick="todoToLog(${x.id})">${x.resumeRelevant?'✓ 已进入经历库':'✦ 转为简历素材'}</button>`:""}</div></div>`).join("") || empty("今天还没有任务。先写下一件最重要的事。")}</section></div>`;
+      }
+      function scoreTodo(t) { return [/截止|今天|今晚|明天|ddl|deadline|必须|提交|投递/, /简历|面试|笔试|复盘|汇报|上线/].reduce((s,r)=>s+(r.test(t.title+t.detail)?2:0),0)+(t.status==="todo"?1:0); }
+      function addTodo() { const title = val("todo-title").trim(); if (!title) return toast("先写下今天要完成的事项"); state.todos.unshift({ id:id(), date:today(), title, detail:val("todo-detail").trim(), status:"todo", resumeRelevant:false, createdAt:new Date().toISOString() }); save(); toast("已加入今天的清单"); }
+      function toggleTodo(todoId) { state.todos = state.todos.map(x => x.id===todoId ? {...x, status:x.status==="done"?"todo":"done"} : x); save(); }
+      function todoToLog(todoId) { const t = state.todos.find(x=>x.id===todoId); if (!t) return; const content = `今天完成了：${t.title}\n具体过程：${t.detail || "待补充"}`; state.logs.unshift({ id:id(), date:today(), content, result:analyze(content), createdAt:new Date().toISOString() }); state.todos = state.todos.map(x => x.id===todoId ? {...x, resumeRelevant:true} : x); save(); toast("已转为经历素材"); }
+
+      function jobs() {
+        const shown = state.jobs.filter(j => (filter==="全部" || j.category===filter) && `${j.company}${j.role}${j.requirements}`.toLowerCase().includes((document.querySelector("#job-query")?.value || "").toLowerCase()));
+        return `<section class="card"><div class="section-title"><div><h2>岗位情报工作坊</h2><p>粘贴招聘消息或手动添加，缺失信息会标记为待确认。</p></div><div class="actions"><button class="secondary" onclick="jobImportModal()">粘贴群消息</button><button class="primary" onclick="jobAddModal()">＋ 手动添加</button></div></div><label>搜索公司或岗位<input id="job-query" oninput="render()" placeholder="产品经理、SHEIN、管培生"></label><div class="chips">${cats.map(c=>`<button class="chip ${filter===c?'active':''}" onclick="filter='${c}';render()">${c}</button>`).join("")}</div></section><section class="job-grid">${shown.map(jobCard).join("") || empty("岗位库还是空的。粘贴招聘消息或手动添加后，这里会出现真实岗位。")}</section>`;
+      }
+      function jobCard(j) { return `<article class="card job-card"><div class="section-title"><div><h3>${esc(j.company)}</h3><p>${esc(j.role)}</p></div><span class="tag">${esc(j.category)}</span></div><p>${esc(j.companyIntro || "待补充公司介绍")}</p><div class="meta"><div><small>截止时间</small><b>${esc(j.deadline)}</b></div><div><small>状态</small><b>${esc(j.status)}</b></div><div><small>层级</small><b>${esc(j.tier)}</b></div><div><small>匹配度</small><b>${esc(j.match || 0)}%</b></div></div>${j.requirements?`<p class="quote">${esc(j.requirements)}</p>`:""}${j.sourceUrl?`<a href="${esc(j.sourceUrl)}" target="_blank">打开信息来源 →</a>`:`<p class="muted">来源链接待补充，请投递前核实</p>`}</article>`; }
+      function jobAddModal() { modal(`<button class="secondary" onclick="closeModal()">关闭</button><h2>手动添加岗位</h2><label>公司名称<input id="m-company"></label><label>岗位名称<input id="m-role"></label><label>分类<select id="m-category">${cats.slice(1).map(c=>`<option>${c}</option>`).join("")}</select></label><label>截止时间<input id="m-deadline" value="待确认"></label><label>匹配度<input id="m-match" type="number" value="0"></label><label>公司介绍<textarea id="m-intro"></textarea></label><label>岗位要求<textarea id="m-req"></textarea></label><label>原始链接<input id="m-url"></label><button class="primary" onclick="saveManualJob()">保存岗位</button>`); }
+      function saveManualJob() { const company = val("m-company").trim(), role = val("m-role").trim(); if (!company || !role) return toast("请填写公司和岗位"); state.jobs.unshift({ id:id(), company, role, category:val("m-category"), tier:"待评估", deadline:val("m-deadline") || "待确认", match:Number(val("m-match")||0), status:"待核实", companyIntro:val("m-intro"), requirements:val("m-req"), sourceUrl:val("m-url"), createdAt:new Date().toISOString() }); closeModal(); save(); toast("岗位已保存"); }
+      function jobImportModal() { modal(`<button class="secondary" onclick="closeModal()">关闭</button><h2>批量导入岗位</h2><p class="muted">把群聊招聘消息完整粘贴进来，本地规则只提取原文信息。</p><textarea id="paste-jobs" placeholder="公司｜岗位｜截止时间｜要求｜链接"></textarea><button class="primary" onclick="previewJobs()">本地拆分岗位</button><div id="parsed-jobs"></div>`); }
+      function previewJobs() { const rows = parseJobs(val("paste-jobs")); document.querySelector("#parsed-jobs").innerHTML = rows.map(x=>row(`${x.company} · ${x.role}`, `${x.category}｜${x.deadline}`, "待核实")).join("") + `<button class="primary" onclick='saveParsedJobs(${JSON.stringify(JSON.stringify(rows))})'>确认并全部存入岗位库</button>`; }
+      function saveParsedJobs(raw) { state.jobs.unshift(...JSON.parse(raw)); closeModal(); save(); toast("岗位已保存"); }
+
+      function resumes() {
+        const r = state.resume, c = r.content;
+        return `<div class="grid"><section class="card span-6"><div class="section-title"><div><h2>简历工坊</h2><p>所有内容可编辑。</p></div></div><div class="actions"><button class="secondary" onclick="resumeFromLogs()">✦ 从日志生成</button><button class="primary" onclick="window.print()">浏览器打印/PDF</button></div><label>姓名<input id="r-name" value="${esc(r.name)}" oninput="state.resume.name=this.value;save()"></label><label>联系方式<input id="r-contact" value="${esc(c.contact)}" oninput="state.resume.content.contact=this.value;save()"></label><label>目标岗位<input id="r-role" value="${esc(r.targetRole)}" oninput="state.resume.targetRole=this.value;save()"></label><label>个人优势<textarea oninput="state.resume.content.summary=this.value;save()">${esc(c.summary)}</textarea></label><label>教育经历<textarea oninput="state.resume.content.education=this.value;save()">${esc(c.education)}</textarea></label><label>技能关键词<input value="${esc(c.skills.join("、"))}" oninput="state.resume.content.skills=this.value.split(/[、,，]/).filter(Boolean);save()"></label><button class="secondary" onclick="addExperience()">＋ 添加经历</button></section><section class="card span-6"><h2>一页简历预览</h2>${paper()}</section><section class="card span-12"><h2>实习经历编辑</h2>${c.experiences.map(expEditor).join("") || empty("还没有经历。可以从日志生成，或手动添加。")}</section></div>`;
+      }
+      function resumeFromLogs() { const skills = [...new Set(state.logs.flatMap(x=>x.result.abilities))].slice(0,8); state.resume.content.summary = state.logs.length ? `面向${state.resume.targetRole}，已沉淀${state.logs.length}段实习/项目经历，优势集中在${skills.join("、") || "执行与交付"}。请继续补充可量化结果后再投递。` : "请先记录实习日志，再生成更可信的个人优势。"; state.resume.content.skills = skills; state.resume.content.experiences = state.logs.length ? [{ company:"实习/项目经历", role:state.resume.targetRole, period:"待补充时间", bullets:state.logs.slice(0,6).map(x=>x.result.bullet) }] : []; save(); toast("已从日志生成简历初稿"); }
+      function addExperience() { state.resume.content.experiences.push({company:"待补充公司", role:"待补充岗位", period:"待补充时间", bullets:["待补充具体行动与结果"]}); save(); }
+      function expEditor(e,i) { return `<div class="card"><label>公司<input value="${esc(e.company)}" oninput="state.resume.content.experiences[${i}].company=this.value;save()"></label><label>岗位<input value="${esc(e.role)}" oninput="state.resume.content.experiences[${i}].role=this.value;save()"></label><label>时间<input value="${esc(e.period)}" oninput="state.resume.content.experiences[${i}].period=this.value;save()"></label><label>经历描述<textarea oninput="state.resume.content.experiences[${i}].bullets=this.value.split('\\n');save()">${esc(e.bullets.join("\n"))}</textarea></label><button class="danger" onclick="state.resume.content.experiences.splice(${i},1);save()">删除这段经历</button></div>`; }
+      function paper() { const r=state.resume,c=r.content; return `<div class="paper"><h1>${esc(r.name)}</h1><p class="muted">${esc(c.contact)}</p><b>求职意向：${esc(r.targetRole)}</b><h2>个人优势</h2><p>${esc(c.summary)}</p><h2>教育经历</h2><p>${esc(c.education)}</p>${c.experiences.map(e=>`<h2>${esc(e.company)} · ${esc(e.role)}</h2><p class="muted">${esc(e.period)}</p><ul>${e.bullets.filter(Boolean).map(b=>`<li>${esc(b)}</li>`).join("")}</ul>`).join("")}<h2>专业技能</h2><p>${esc(c.skills.join(" · ") || "待补充")}</p></div>`; }
+
+      function interviews() {
+        return `<div class="grid"><section class="card span-6"><h2>面试训练室</h2><label>目标岗位<select id="iv-role"><option>国际化产品经理</option><option>商业分析</option><option>战略管培生</option></select></label><label>训练模式<select id="iv-mode"><option>业务面</option><option>行为面</option><option>压力面</option></select></label><button class="primary" onclick="genInterview()">✦ 生成模拟题</button><div id="iv-questions"></div></section><section class="card span-6"><h2>回答复盘</h2><label>当前问题<input id="iv-question" placeholder="先生成一道题"></label><label>你的回答<textarea id="iv-answer" placeholder="输入你的回答思路"></textarea></label><button class="primary" onclick="saveReview()">保存回答与反馈</button></section><section class="card span-12"><h2>历史复盘</h2>${state.interviewReviews.map(x=>row(`${x.role}｜${x.mode}`, `${x.question}\n${x.feedback}`, x.date)).join("") || empty("还没有面试复盘。")}</section></div>`;
+      }
+      function genInterview() { const role=val("iv-role"), mode=val("iv-mode"); const map = { "业务面":[`如果你负责${role}的新用户增长，你会先看哪些指标？`,"讲一个你从用户反馈中发现问题并推动方案调整的经历。","面对目标不清晰的需求，你会如何拆解和对齐？"], "行为面":["讲一个你在资源有限时推动跨团队项目落地的经历。","讲一次你和他人意见冲突时的处理方式。","讲一个你主动承担责任并最终交付结果的例子。"], "压力面":["如果面试官认为你的经历不够匹配，你会如何回应？","如果项目结果没有达到预期，你如何复盘自己的问题？","如果同一时间有多个高优任务，你如何取舍？"] }; const qs = map[mode]; document.querySelector("#iv-question").value = qs[0]; document.querySelector("#iv-questions").innerHTML = qs.map(q=>`<button class="secondary" onclick="document.querySelector('#iv-question').value='${esc(q)}'">${esc(q)}</button>`).join(" "); toast("已生成本地模拟题"); }
+      function saveReview() { const answer=val("iv-answer").trim(); if(!answer)return toast("请先输入回答"); const a=analyze(answer); state.interviewReviews.unshift({id:id(),date:today(),role:val("iv-role"),mode:val("iv-mode"),question:val("iv-question"),answer,feedback:`建议突出：${a.abilities.join("、")}。当前回答可沉淀为：${a.bullet}`}); save(); toast("面试复盘已保存"); }
+
+      function logs() {
+        return `<div class="grid"><section class="card span-6"><h2>实习日志与经历引擎</h2><div class="actions"><button class="secondary" onclick="document.querySelector('#log-raw').value='今天完成了：\\n当时遇到的问题：\\n我采取的行动：\\n产生的结果：'">使用记录模板</button><button class="secondary" onclick="toggleReminder()">${state.settings.internshipReminder?"关闭18点提醒":"开启18点提醒"}</button></div><label>今天发生了什么？<textarea id="log-raw" placeholder="例如：整理了 80 条用户反馈，并推动方案提前 2 天上线"></textarea></label><button class="primary" onclick="previewLog()">✦ 本地深度复盘</button><button class="secondary" onclick="saveLog()">保存经历</button></section><section class="card span-6" id="log-preview"><h2>STAR 经历草稿</h2>${empty("输入日志并复盘后会出现在这里。")}</section><section class="card span-12"><h2>经历复用工作台</h2><label>目标公司<input id="reuse-company" placeholder="如 SHEIN"></label><label>目标岗位<input id="reuse-role" placeholder="如 海外运营"></label>${state.logs.map(x=>`<div class="row"><div><h4>${esc(x.date)} · ${esc(x.result.bullet)}</h4><p>${esc(x.result.abilities.join("、"))}</p><button class="secondary" onclick="reuse(${x.id})">生成适配表达</button></div></div>`).join("") || empty("还没有经历素材。")}</section><section class="card span-12"><h2>经历素材库</h2>${state.logs.map(x=>row(x.result.bullet, x.content, x.result.abilities.join("、"))).join("") || empty("今天先记录一件真实完成的事。")}</section></div>`;
+      }
+      let lastAnalysis = null;
+      function previewLog() { const raw=val("log-raw").trim(); if(!raw)return toast("请先写下今天做过的零散事项"); lastAnalysis=analyze(raw); document.querySelector("#log-preview").innerHTML = `<h2>STAR 经历草稿</h2><div class="star"><article><b>S</b><h4>情境</h4><p>${esc(lastAnalysis.situation)}</p></article><article><b>T</b><h4>任务</h4><p>${esc(lastAnalysis.task)}</p></article><article><b>A</b><h4>行动</h4><p>${esc(lastAnalysis.action)}</p></article><article><b>R</b><h4>结果</h4><p>${esc(lastAnalysis.result)}</p></article></div><p class="quote">${esc(lastAnalysis.bullet)}</p>${lastAnalysis.questions.map((q,i)=>`<label>${i+1}. ${esc(q)}<textarea></textarea></label>`).join("")}`; toast("已完成本地 STAR 复盘"); }
+      function saveLog() { const raw=val("log-raw").trim(); if(!raw)return toast("请先写日志"); const result=lastAnalysis || analyze(raw); state.logs.unshift({id:id(),date:today(),content:raw,result,createdAt:new Date().toISOString()}); lastAnalysis=null; save(); toast("已保存到经历库"); }
+      function reuse(logId) { const log=state.logs.find(x=>x.id===logId); const role=val("reuse-role"); if(!log || !role)return toast("请填写目标岗位"); const text = `面向${val("reuse-company") || "目标公司"}的${role}岗位，重点突出“${log.result.abilities.join("、")}”：${log.result.bullet}（经历仍归属于原实习公司，仅调整表达重点）`; modal(`<button class="secondary" onclick="closeModal()">关闭</button><h2>岗位适配表达</h2><p class="quote">${esc(text)}</p>`); }
+      function toggleReminder() { state.settings.internshipReminder=!state.settings.internshipReminder; save(); toast(state.settings.internshipReminder ? "已开启提醒" : "已关闭提醒"); }
+
+      function settings() {
+        return `<section class="card"><h2>设置与数据</h2>${row("本地数据","网页预览版数据保存在当前浏览器 localStorage。安卓 APK 会保存在手机本地。","离线")}${row("18点实习日志提醒", "工作日 18:00 后打开 App 会提醒记录实习日志。", state.settings.internshipReminder?"已开":"关闭")}<div class="actions"><button class="secondary" onclick="toggleReminder()">${state.settings.internshipReminder?"关闭提醒":"开启提醒"}</button><button class="primary" onclick="exportData()">导出本地数据</button><button class="danger" onclick="resetData()">清空本地数据</button></div><label>导入 JSON 备份<textarea id="import-data" placeholder="粘贴导出的 JSON 内容"></textarea></label><button class="secondary" onclick="importData()">导入备份</button></section>`;
+      }
+      function exportData() { const blob = new Blob([JSON.stringify({ exportedAt:new Date().toISOString(), data:state }, null, 2)], {type:"application/json"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="career-copilot-backup.json"; a.click(); URL.revokeObjectURL(a.href); }
+      function importData() { try { const parsed=JSON.parse(val("import-data")); state=parsed.data || parsed; save(); toast("本地数据已导入"); } catch { toast("导入失败，请粘贴完整 JSON"); } }
+      function resetData() { if(confirm("确定清空本地数据？")) { state=blank(); localStorage.removeItem(STORE); render(); toast("本地数据已清空"); } }
+
+      function row(title, detail, tag) { return `<div class="row"><div style="flex:1"><h4>${esc(title)}</h4><p>${esc(detail)}</p></div>${tag?`<span class="tag">${esc(tag)}</span>`:""}</div>`; }
+      function empty(text) { return `<div class="empty">${esc(text)}</div>`; }
+      function timeRow(x,i) { return `<div class="row"><span class="tag">0${i+1}</span><div><h4>${esc(x[1])}</h4><p><b>${esc(x[0])}</b> · ${esc(x[2])}</p></div></div>`; }
+      function val(id) { return document.getElementById(id)?.value || ""; }
+      render();
+    </script>
+    <script>
+      const previewScreens = [
+        ["home","⌂","总览"],["todos","✓","To Do"],["jobs","◎","岗位"],["resumes","▤","简历"],
+        ["interviews","◉","面试"],["timeline","◷","时间线"],["logs","✦","日志"],["settings","⚙","设置"]
+      ];
+      let jobQuery = "";
+      let todoAdvice = [];
+      let parsedJobsCache = [];
+      let interviewQuestions = [];
+
+      function ensureDeepSeekSettings() {
+        state.settings = {
+          internshipReminder: false,
+          deepseekApiKey: "",
+          deepseekModel: "deepseek-v4-flash",
+          deepseekThinking: false,
+          ...state.settings
+        };
+      }
+
+      blank = function() {
+        return {
+          jobs: [],
+          todos: [],
+          logs: [],
+          interviewReviews: [],
+          settings: { internshipReminder: false, deepseekApiKey: "", deepseekModel: "deepseek-v4-flash", deepseekThinking: false },
+          resume: {
+            name: "姓名待填写",
+            targetRole: "目标岗位待填写",
+            updatedAt: new Date(0).toISOString(),
+            content: {
+              contact: "手机｜邮箱｜所在城市",
+              summary: "请填写个人优势，或从实习日志生成",
+              education: "学校｜专业｜学历｜毕业时间",
+              skills: [],
+              experiences: []
+            }
+          }
+        };
+      };
+
+      render = function() {
+        ensureDeepSeekSettings();
+        document.querySelector("#today").textContent = `${today()} · 网页预览`;
+        document.querySelector("#nav").innerHTML = previewScreens.map(([key, icon, label]) => `<button class="${active===key?"active":""}" onclick="showScreen('${key}')"><span>${icon}</span>${label}</button>`).join("");
+        const title = (previewScreens.find(x => x[0] === active) || ["home","","总览"])[2];
+        document.querySelector("#screen-title").textContent = title;
+        document.querySelector("#screen").innerHTML = ({ home, todos, jobs, resumes, interviews, timelineScreen, logs, settings }[active] || home)();
+      };
+
+      async function deepseekJSON(system, user, fallback, schemaLabel) {
+        ensureDeepSeekSettings();
+        if (!state.settings.deepseekApiKey) {
+          toast("未配置 DeepSeek Key，已使用本地规则");
+          return fallback();
+        }
+        try {
+          const response = await fetch("/api/deepseek", {
+            method: "POST",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+              apiKey: state.settings.deepseekApiKey,
+              model: state.settings.deepseekModel || "deepseek-v4-flash",
+              thinking: { type: state.settings.deepseekThinking ? "enabled" : "disabled" },
+              temperature: 0.2,
+              response_format: { type: "json_object" },
+              messages: [
+                { role: "system", content: `${system}\n必须只返回有效 JSON。${schemaLabel || ""}` },
+                { role: "user", content: user }
+              ]
+            })
+          });
+          const payload = await response.json();
+          if (!response.ok) throw new Error(payload.error?.message || payload.error || "deepseek_error");
+          const text = payload.choices?.[0]?.message?.content;
+          if (!text) throw new Error("empty_response");
+          return JSON.parse(text);
+        } catch (error) {
+          console.error(error);
+          toast("DeepSeek 调用失败，已切换本地规则");
+          return fallback();
+        }
+      }
+
+      home = function() {
+        ensureDeepSeekSettings();
+        const todayTodos = state.todos.filter(x => x.date === today());
+        const done = todayTodos.filter(x => x.status === "done").length;
+        const submitted = state.jobs.filter(x => /已投递|笔试|面试|offer/i.test(x.status)).length;
+        const readiness = Math.min(98, 28 + state.jobs.length*5 + state.logs.length*4 + state.interviewReviews.length*3 + done*4);
+        return `<section class="hero span-12"><div><small>2027 届秋招 · 本地工作台</small><h2>晚上好，今天也离理想 Offer 更近一步。</h2><p>岗位、任务、日志、简历和面试记录保存在当前浏览器。安卓 APK 中会保存在手机本地；DeepSeek Key 只保存在你的设备/本地预览里。</p><button class="primary" onclick="showScreen('timeline')">查看招聘时间线</button></div></section>
+        <div class="grid">
+          <section class="span-12 stats">${stat("准备度", readiness+"%")}${stat("岗位池", state.jobs.length)}${stat("已投递", submitted)}${stat("今日完成", done+"/"+todayTodos.length)}</section>
+          <section class="card span-8"><div class="section-title"><div><h2>今日聚焦</h2><p>优先处理求职价值最高的待办。</p></div><button class="secondary" onclick="showScreen('todos')">打开 To Do</button></div>${state.todos.filter(x=>x.status==="todo").slice(0,3).map(x=>row(x.title, x.detail || "尚未补充背景", "待完成")).join("") || empty("今天还没有待办。")}</section>
+          <section class="card span-4"><h2>能力雷达</h2>${state.logs.length ? `<p class="quote">${esc([...new Set(state.logs.flatMap(x=>x.result.abilities))].slice(0,6).join("、"))}</p>` : empty("记录日志后会形成能力标签。")}<button class="secondary" onclick="showScreen('logs')">沉淀经历</button></section>
+          <section class="card span-12"><div class="section-title"><div><h2>你的招聘时间线</h2><p>以秋招为主线，兼顾春招和毕业前收口。</p></div></div>${timeline.map((x,i)=>timeRow(x,i)).join("")}</section>
+        </div>`;
+      };
+
+      todos = function() {
+        const todayTodos = state.todos.filter(x => x.date === today());
+        const planned = todoAdvice.length ? todoAdvice : [...todayTodos].sort((a,b)=>scoreTodo(b)-scoreTodo(a)).slice(0,5).map((x,i)=>({ name:`${i+1}. ${x.title}`, reason: scoreTodo(x)>=3 ? "和投递、面试或交付强相关，建议优先处理。" : "建议补充截止时间或结果指标。", action:x.detail || "补充背景后执行。" }));
+        return `<div class="grid">
+          <section class="card span-6"><h2>新增今日 To Do</h2><label>今天要完成什么？<input id="todo-title" placeholder="例如：完成用户反馈分析并向产品经理汇报"></label><label>补充背景或预期结果<textarea id="todo-detail" placeholder="为什么要做、影响谁、希望产生什么结果"></textarea></label><button class="primary" onclick="addTodo()">＋ 加入今日清单</button></section>
+          <section class="card span-6"><h2>今日规划</h2><p class="muted">可用 DeepSeek 分析优先级；没有 Key 时自动使用本地规则。</p><button class="primary" onclick="planTodosAI()">DeepSeek 排优先级</button>${planned.map(x=>row(x.name, `${x.reason}\n${x.action}`, "规划")).join("") || empty("先加入至少一项 To Do。")}</section>
+          <section class="card span-12"><div class="section-title"><div><h2>今天的行动</h2><p>${todayTodos.filter(x=>x.status==="done").length}/${todayTodos.length} 已完成</p></div></div>${todayTodos.map(x=>`<div class="row todo ${x.status==='done'?'done':''}"><button class="check" onclick="toggleTodo(${x.id})">${x.status==='done'?'✓':''}</button><div style="flex:1"><h4>${esc(x.title)}</h4><p>${esc(x.detail || "尚未补充背景")}</p>${x.status==='done'?`<button class="secondary" onclick="todoToLog(${x.id})">${x.resumeRelevant?'✓ 已进入经历库':'✦ 转为简历素材'}</button>`:""}</div></div>`).join("") || empty("今天还没有任务。先写下一件最重要的事。")}</section>
+        </div>`;
+      };
+
+      async function planTodosAI() {
+        const todayTodos = state.todos.filter(x => x.date === today());
+        if (!todayTodos.length) return toast("先加入至少一项 To Do");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是求职与实习效率教练。根据紧急度、重要度、依赖关系和简历价值排序。",
+          JSON.stringify(todayTodos),
+          () => ({ items: [...todayTodos].sort((a,b)=>scoreTodo(b)-scoreTodo(a)).map((x,i)=>({ name:`${i+1}. ${x.title}`, reason:"本地规则排序。", action:x.detail || "补充背景后执行。" })) }),
+          "返回 JSON：{items:[{name:string,reason:string,action:string}]}"
+        );
+        todoAdvice = result.items || [];
+        render();
+        toast("今日优先级已更新");
+      }
+
+      jobs = function() {
+        const shown = state.jobs.filter(j => (filter==="全部" || j.category===filter) && `${j.company}${j.role}${j.requirements}`.toLowerCase().includes(jobQuery.toLowerCase()));
+        return `<section class="card"><div class="section-title"><div><h2>岗位情报工作坊</h2><p>粘贴招聘消息或手动添加，缺失信息会标记为待确认。</p></div><div class="actions"><button class="secondary" onclick="jobImportModal()">粘贴群消息</button><button class="primary" onclick="jobAddModal()">＋ 手动添加</button></div></div><label>搜索公司或岗位<input id="job-query" value="${esc(jobQuery)}" oninput="jobQuery=this.value;render()" placeholder="产品经理、SHEIN、管培生"></label><div class="chips">${cats.map(c=>`<button class="chip ${filter===c?'active':''}" onclick="filter='${c}';render()">${c}</button>`).join("")}</div></section><section class="job-grid">${shown.map(jobCard).join("") || empty("岗位库还是空的。粘贴招聘消息或手动添加后，这里会出现真实岗位。")}</section>`;
+      };
+
+      jobImportModal = function() {
+        parsedJobsCache = [];
+        modal(`<button class="secondary" onclick="closeModal()">关闭</button><h2>批量导入岗位</h2><p class="muted">粘贴群聊招聘消息。DeepSeek 可做结构化提取；未配置 Key 时使用本地规则。</p><textarea id="paste-jobs" placeholder="公司｜岗位｜截止时间｜要求｜链接"></textarea><div class="actions"><button class="secondary" onclick="previewJobsLocal()">本地拆分</button><button class="primary" onclick="previewJobsAI()">DeepSeek 拆分</button></div><div id="parsed-jobs"></div>`);
+      };
+
+      function renderParsedJobs(rows) {
+        parsedJobsCache = rows;
+        document.querySelector("#parsed-jobs").innerHTML = rows.map(x=>row(`${x.company} · ${x.role}`, `${x.category}｜${x.deadline}`, "待核实")).join("") + (rows.length ? `<button class="primary" onclick="saveParsedJobsFromCache()">确认并全部存入岗位库</button>` : empty("没有拆分出岗位。"));
+      }
+      function previewJobsLocal() { renderParsedJobs(parseJobs(val("paste-jobs"))); }
+      async function previewJobsAI() {
+        const text = val("paste-jobs").trim();
+        if (!text) return toast("请先粘贴招聘消息");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是校招岗位情报整理员。只从用户提供文本中提取事实，缺失字段写待确认，不要虚构。",
+          text,
+          () => ({ jobs: parseJobs(text) }),
+          "返回 JSON：{jobs:[{company,role,category,tier,deadline,match,status,companyIntro,requirements,sourceUrl}]}"
+        );
+        renderParsedJobs((result.jobs || []).map((x,i)=>({ id:id()+i, createdAt:new Date().toISOString(), tier:"待评估", deadline:"待确认", match:0, status:"待核实", companyIntro:"待补充（原信息未提供）", requirements:"", sourceUrl:"", ...x })));
+      }
+      function saveParsedJobsFromCache() { state.jobs.unshift(...parsedJobsCache); closeModal(); save(); toast("岗位已保存"); }
+
+      resumes = function() {
+        const r = state.resume, c = r.content;
+        return `<div class="grid"><section class="card span-6"><div class="section-title"><div><h2>简历工坊</h2><p>所有内容可编辑，支持 DeepSeek 基于日志生成更完整的初稿。</p></div></div><div class="actions"><button class="secondary" onclick="resumeFromLogs()">本地生成</button><button class="primary" onclick="resumeFromLogsAI()">DeepSeek 生成</button><button class="secondary" onclick="window.print()">浏览器打印/PDF</button></div><label>姓名<input id="r-name" value="${esc(r.name)}" onchange="state.resume.name=this.value;save()"></label><label>联系方式<input id="r-contact" value="${esc(c.contact)}" onchange="state.resume.content.contact=this.value;save()"></label><label>目标岗位<input id="r-role" value="${esc(r.targetRole)}" onchange="state.resume.targetRole=this.value;save()"></label><label>个人优势<textarea onchange="state.resume.content.summary=this.value;save()">${esc(c.summary)}</textarea></label><label>教育经历<textarea onchange="state.resume.content.education=this.value;save()">${esc(c.education)}</textarea></label><label>技能关键词<input value="${esc(c.skills.join("、"))}" onchange="state.resume.content.skills=this.value.split(/[、,，]/).filter(Boolean);save()"></label><button class="secondary" onclick="addExperience()">＋ 添加经历</button></section><section class="card span-6"><h2>一页简历预览</h2>${paper()}</section><section class="card span-12"><h2>实习经历编辑</h2>${c.experiences.map(expEditor).join("") || empty("还没有经历。可以从日志生成，或手动添加。")}</section></div>`;
+      };
+
+      async function resumeFromLogsAI() {
+        if (!state.logs.length) return toast("请先记录实习日志");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是中文校招简历专家。严格基于日志生成一页简历素材，不虚构数字、公司、职责或结果；缺失信息写待补充。",
+          JSON.stringify({ targetRole: state.resume.targetRole, logs: state.logs }),
+          () => ({ summary: state.resume.content.summary, skills: [...new Set(state.logs.flatMap(x=>x.result.abilities))], experiences: [{ company:"实习/项目经历", role:state.resume.targetRole, period:"待补充时间", bullets:state.logs.slice(0,6).map(x=>x.result.bullet) }] }),
+          "返回 JSON：{summary:string,skills:string[],experiences:[{company:string,role:string,period:string,bullets:string[]}]}"
+        );
+        state.resume.content.summary = result.summary || state.resume.content.summary;
+        state.resume.content.skills = result.skills || state.resume.content.skills;
+        state.resume.content.experiences = result.experiences || state.resume.content.experiences;
+        save();
+        toast("简历初稿已更新");
+      }
+
+      interviews = function() {
+        return `<div class="grid"><section class="card span-6"><h2>面试训练室</h2><label>目标岗位<select id="iv-role"><option>国际化产品经理</option><option>商业分析</option><option>战略管培生</option></select></label><label>训练模式<select id="iv-mode"><option>业务面</option><option>行为面</option><option>压力面</option></select></label><div class="actions"><button class="secondary" onclick="genInterviewLocal()">本地题库</button><button class="primary" onclick="genInterview()">DeepSeek 生成</button></div><div id="iv-questions">${interviewQuestions.map(q=>`<button class="secondary" onclick="document.querySelector('#iv-question').value='${esc(q)}'">${esc(q)}</button>`).join(" ")}</div></section><section class="card span-6"><h2>回答复盘</h2><label>当前问题<input id="iv-question" placeholder="先生成一道题"></label><label>你的回答<textarea id="iv-answer" placeholder="输入你的回答思路"></textarea></label><div class="actions"><button class="secondary" onclick="saveReviewLocal()">本地保存</button><button class="primary" onclick="saveReview()">DeepSeek 反馈并保存</button></div></section><section class="card span-12"><h2>历史复盘</h2>${state.interviewReviews.map(x=>row(`${x.role}｜${x.mode}`, `${x.question}\n${x.feedback}`, x.date)).join("") || empty("还没有面试复盘。")}</section></div>`;
+      };
+
+      function genInterviewLocal() {
+        const role=val("iv-role"), mode=val("iv-mode");
+        const map = { "业务面":[`如果你负责${role}的新用户增长，你会先看哪些指标？`,"讲一个你从用户反馈中发现问题并推动方案调整的经历。","面对目标不清晰的需求，你会如何拆解和对齐？"], "行为面":["讲一个你在资源有限时推动跨团队项目落地的经历。","讲一次你和他人意见冲突时的处理方式。","讲一个你主动承担责任并最终交付结果的例子。"], "压力面":["如果面试官认为你的经历不够匹配，你会如何回应？","如果项目结果没有达到预期，你如何复盘自己的问题？","如果同一时间有多个高优任务，你如何取舍？"] };
+        interviewQuestions = map[mode];
+        render();
+        toast("已生成本地模拟题");
+      }
+      genInterview = async function() {
+        const role=val("iv-role"), mode=val("iv-mode");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是校招面试官。根据岗位和面试类型生成具体问题与回答框架，不虚构候选人经历。",
+          JSON.stringify({ role, mode }),
+          () => ({ items: ["业务面","行为面","压力面"].includes(mode) ? [] : [] }),
+          "返回 JSON：{items:[{name:string,reason:string,action:string}]}"
+        );
+        interviewQuestions = result.items?.map(x=>x.name) || [];
+        if (!interviewQuestions.length) genInterviewLocal();
+        else { render(); toast("已生成 DeepSeek 模拟题"); }
+      };
+      function saveReviewLocal() { saveInterviewReview(null); }
+      saveReview = async function() {
+        const answer=val("iv-answer").trim();
+        if(!answer)return toast("请先输入回答");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是校招面试复盘教练。基于用户回答给出具体反馈，不虚构事实。",
+          JSON.stringify({ question: val("iv-question"), answer }),
+          () => ({ feedback: `建议突出：${analyze(answer).abilities.join("、")}。当前回答可沉淀为：${analyze(answer).bullet}` }),
+          "返回 JSON：{feedback:string}"
+        );
+        saveInterviewReview(result.feedback);
+      };
+      function saveInterviewReview(feedback) {
+        const answer=val("iv-answer").trim(); if(!answer)return toast("请先输入回答");
+        const a=analyze(answer);
+        state.interviewReviews.unshift({id:id(),date:today(),role:val("iv-role"),mode:val("iv-mode"),question:val("iv-question"),answer,feedback: feedback || `建议突出：${a.abilities.join("、")}。当前回答可沉淀为：${a.bullet}`});
+        save();
+        toast("面试复盘已保存");
+      }
+
+      timelineScreen = function() {
+        return `<section class="card"><div class="section-title"><div><h2>2027 届招聘时间线</h2><p>关键窗口、阶段目标和本地提醒。</p></div></div>${timeline.map((x,i)=>`<div class="row"><span class="tag">0${i+1}</span><div style="flex:1"><h4>${esc(x[1])}</h4><p><b>${esc(x[0])}</b> · ${esc(x[2])}</p><button class="secondary" onclick="toast('已记录“${esc(x[1])}”阶段提醒')">设置提醒</button></div></div>`).join("")}</section>`;
+      };
+
+      logs = function() {
+        return `<div class="grid"><section class="card span-6"><h2>实习日志与经历引擎</h2><div class="actions"><button class="secondary" onclick="document.querySelector('#log-raw').value='今天完成了：\\n当时遇到的问题：\\n我采取的行动：\\n产生的结果：'">使用记录模板</button><button class="secondary" onclick="toggleReminder()">${state.settings.internshipReminder?"关闭18点提醒":"开启18点提醒"}</button></div><label>今天发生了什么？<textarea id="log-raw" placeholder="例如：整理了 80 条用户反馈，并推动方案提前 2 天上线"></textarea></label><div class="actions"><button class="secondary" onclick="previewLogLocal()">本地复盘</button><button class="primary" onclick="previewLog()">DeepSeek 深度复盘</button><button class="secondary" onclick="saveLog()">保存经历</button></div></section><section class="card span-6" id="log-preview"><h2>STAR 经历草稿</h2>${empty("输入日志并复盘后会出现在这里。")}</section><section class="card span-12"><h2>经历复用工作台</h2><label>目标公司<input id="reuse-company" placeholder="如 SHEIN"></label><label>目标岗位<input id="reuse-role" placeholder="如 海外运营"></label>${state.logs.map(x=>`<div class="row"><div><h4>${esc(x.date)} · ${esc(x.result.bullet)}</h4><p>${esc(x.result.abilities.join("、"))}</p><button class="secondary" onclick="reuse(${x.id})">生成适配表达</button></div></div>`).join("") || empty("还没有经历素材。")}</section><section class="card span-12"><h2>经历素材库</h2>${state.logs.map(x=>row(x.result.bullet, x.content, x.result.abilities.join("、"))).join("") || empty("今天先记录一件真实完成的事。")}</section></div>`;
+      };
+      function renderAnalysis(result) {
+        lastAnalysis = result;
+        document.querySelector("#log-preview").innerHTML = `<h2>STAR 经历草稿</h2><div class="star"><article><b>S</b><h4>情境</h4><p>${esc(result.situation)}</p></article><article><b>T</b><h4>任务</h4><p>${esc(result.task)}</p></article><article><b>A</b><h4>行动</h4><p>${esc(result.action)}</p></article><article><b>R</b><h4>结果</h4><p>${esc(result.result)}</p></article></div><p class="quote">${esc(result.bullet)}</p>${(result.questions||[]).map((q,i)=>`<label>${i+1}. ${esc(q)}<textarea></textarea></label>`).join("")}`;
+      }
+      function previewLogLocal() { const raw=val("log-raw").trim(); if(!raw)return toast("请先写下今天做过的零散事项"); renderAnalysis(analyze(raw)); toast("已完成本地 STAR 复盘"); }
+      previewLog = async function() {
+        const raw=val("log-raw").trim(); if(!raw)return toast("请先写下今天做过的零散事项");
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是严谨的中文职业复盘教练。只基于用户事实做 STAR 分析，缺失信息写待补充并追问。",
+          raw,
+          () => analyze(raw),
+          "返回 JSON：{situation:string,task:string,action:string,result:string,abilities:string[],questions:string[],bullet:string,patterns:string[],nextActions:string[]}"
+        );
+        renderAnalysis(result);
+        toast("复盘已完成");
+      };
+
+      settings = function() {
+        ensureDeepSeekSettings();
+        return `<section class="card"><h2>设置与数据</h2>${row("本地数据","网页预览版数据保存在当前浏览器 localStorage。安卓 APK 会保存在手机本地。","离线")}${row("DeepSeek API","Key 只保存在本地预览/手机本地，不会写进源码。", state.settings.deepseekApiKey ? "已配置" : "未配置")}${row("18点实习日志提醒", "工作日 18:00 后打开 App 会提醒记录实习日志。", state.settings.internshipReminder?"已开":"关闭")}<label>DeepSeek API Key<input id="ds-key" type="password" value="${esc(state.settings.deepseekApiKey)}" placeholder="sk-..." autocomplete="off"></label><label>模型<select id="ds-model"><option ${state.settings.deepseekModel==="deepseek-v4-flash"?"selected":""}>deepseek-v4-flash</option><option ${state.settings.deepseekModel==="deepseek-v4-pro"?"selected":""}>deepseek-v4-pro</option></select></label><div class="actions"><button class="primary" onclick="saveDeepSeekSettings()">保存 DeepSeek 设置</button><button class="secondary" onclick="testDeepSeek()">测试连接</button><button class="secondary" onclick="toggleReminder()">${state.settings.internshipReminder?"关闭提醒":"开启提醒"}</button><button class="primary" onclick="exportData()">导出本地数据</button><button class="danger" onclick="resetData()">清空本地数据</button></div><label>导入 JSON 备份<textarea id="import-data" placeholder="粘贴导出的 JSON 内容"></textarea></label><button class="secondary" onclick="importData()">导入备份</button></section>`;
+      };
+      function saveDeepSeekSettings() {
+        state.settings.deepseekApiKey = val("ds-key").trim();
+        state.settings.deepseekModel = val("ds-model") || "deepseek-v4-flash";
+        save();
+        toast("DeepSeek 设置已保存");
+      }
+      async function testDeepSeek() {
+        saveDeepSeekSettings();
+        const result = await deepseekJSON("你是连接测试助手。", "返回 JSON：{\"ok\":true,\"message\":\"连接正常\"}", () => ({ ok:false, message:"本地规则可用，DeepSeek 未连通" }), "返回 JSON：{ok:boolean,message:string}");
+        toast(result.ok ? "DeepSeek 连接正常" : result.message || "DeepSeek 未连通");
+      }
+
+      render();
+    </script>
+    <script>
+      const previousEnsureDeepSeekSettings = ensureDeepSeekSettings;
+      ensureDeepSeekSettings = function() {
+        previousEnsureDeepSeekSettings();
+        state.aiNotes ||= [];
+        state.settings.candidateProfile ||= "2027届求职者，正在准备秋招，希望兼顾互联网、出海企业和泛体制机会。";
+        state.settings.targetRoles ||= "产品经理、商业分析、战略管培生、海外运营";
+        state.settings.aiPreference ||= "建议要具体、可执行、保守不编造，优先提醒我补齐事实和量化结果。";
+      };
+
+      function careerCtx() {
+        ensureDeepSeekSettings();
+        return JSON.stringify({
+          profile: state.settings.candidateProfile,
+          targetRoles: state.settings.targetRoles,
+          preference: state.settings.aiPreference,
+          resumeTarget: state.resume.targetRole,
+          resumeSkills: state.resume.content.skills,
+          openTodos: state.todos.filter(x => x.status === "todo").slice(0, 8),
+          jobs: state.jobs.slice(0, 12).map(x => ({ company:x.company, role:x.role, category:x.category, deadline:x.deadline, status:x.status, match:x.match })),
+          recentLogs: state.logs.slice(0, 8).map(x => ({ date:x.date, bullet:x.result.bullet, abilities:x.result.abilities })),
+          interviewReviews: state.interviewReviews.slice(0, 5)
+        });
+      }
+
+      function localDailyBriefPreview() {
+        const openTodos = state.todos.filter(x => x.status === "todo");
+        const weakJobs = state.jobs.filter(x => !x.deadline || x.deadline === "待确认").length;
+        const latestLog = state.logs[0];
+        return {
+          title: "今日本地作战简报",
+          summary: `当前有 ${state.jobs.length} 个岗位、${openTodos.length} 个待办、${state.logs.length} 条经历素材。`,
+          actions: [
+            openTodos[0] ? `先完成「${openTodos[0].title}」，并补充可量化结果。` : "新增一项今天最重要的求职行动。",
+            weakJobs ? `有 ${weakJobs} 个岗位缺少截止时间，投递前先核实。` : "岗位信息相对完整，可以筛选高优机会。",
+            latestLog ? `把最近经历「${latestLog.result.bullet}」改写进目标岗位简历。` : "记录一条真实实习日志。"
+          ],
+          tags: ["本地规则", "今日行动", "求职节奏"]
+        };
+      }
+
+      async function dailyBriefAI() {
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是一个严谨的个人求职 Copilot。请综合用户画像、岗位、To Do、日志、简历和面试复盘，生成今天最应该做的作战简报。建议必须具体、可执行，不编造用户经历或外部事实。",
+          careerCtx(),
+          localDailyBriefPreview,
+          "返回 JSON：{title:string,summary:string,actions:string[],tags:string[]}"
+        );
+        state.aiNotes.unshift({ id:id(), date:today(), kind:"daily", source:state.settings.deepseekApiKey ? "deepseek" : "local", title:result.title || "今日作战简报", summary:result.summary || "", actions:result.actions || [], tags:result.tags || [] });
+        state.aiNotes = state.aiNotes.slice(0, 50);
+        save();
+        toast("今日作战简报已生成");
+      }
+
+      const oldJobCard = jobCard;
+      jobCard = function(j) {
+        const base = oldJobCard(j);
+        const statuses = ["待核实","待投递","已投递","笔试","面试","Offer","放弃"];
+        return base.replace("</article>", `${j.strategy ? `<p class="quote">${esc(j.strategy)}</p>` : ""}<p class="muted">投递状态</p><div class="chips">${statuses.map(s=>`<button class="chip ${j.status===s?"active":""}" onclick="setJobStatus(${j.id}, '${s}')">${s}</button>`).join("")}</div><div class="actions"><button class="secondary" onclick="jobStrategyLocal(${j.id})">本地策略</button><button class="primary" onclick="jobStrategy(${j.id})">DeepSeek 策略</button></div></article>`);
+      };
+
+      function setJobStatus(jobId, status) {
+        state.jobs = state.jobs.map(x => x.id === jobId ? { ...x, status } : x);
+        save();
+        toast("岗位状态已更新");
+      }
+
+      function localJobStrategyPreview(job) {
+        const abilities = [...new Set(state.logs.flatMap(x => x.result.abilities))];
+        const match = Math.min(92, Math.max(job.match || 0, 58 + (job.requirements ? 8 : 0) + abilities.slice(0, 3).length * 5));
+        return {
+          strategy: `建议把这个岗位作为${match >= 78 ? "高优先级" : "可观察"}机会。简历重点放在${abilities.slice(0,3).join("、") || "执行与交付"}，投递前补齐岗位要求中的硬性条件。`,
+          match,
+          actions: ["核实截止时间和投递渠道。", "挑选 2 条最贴近岗位要求的 STAR 素材。", "把简历第一段经历改成该岗位关键词。"],
+          risks: [job.deadline === "待确认" ? "截止时间待确认" : "", !job.requirements ? "岗位要求缺失" : ""].filter(Boolean)
+        };
+      }
+
+      async function jobStrategy(jobId) {
+        const job = state.jobs.find(x => x.id === jobId);
+        if (!job) return;
+        if (!state.settings.deepseekApiKey) return toast("请先在设置里配置 DeepSeek API Key");
+        const result = await deepseekJSON(
+          "你是校招岗位策略顾问。请基于用户画像、简历、日志、待办和这个岗位，给出投递策略。不得虚构经历；缺口要明确写待补充。",
+          JSON.stringify({ context: careerCtx(), job }),
+          () => localJobStrategyPreview(job),
+          "返回 JSON：{strategy:string,match:number,actions:string[],risks:string[]}"
+        );
+        const strategy = [result.strategy, result.actions?.length ? `下一步：${result.actions.join("；")}` : "", result.risks?.length ? `风险：${result.risks.join("；")}` : ""].filter(Boolean).join("\\n");
+        state.jobs = state.jobs.map(x => x.id === jobId ? { ...x, strategy, match: Number(result.match ?? x.match ?? 0), strategyUpdatedAt: new Date().toISOString() } : x);
+        state.aiNotes.unshift({ id:id(), date:today(), kind:"job", source:state.settings.deepseekApiKey ? "deepseek" : "local", title:`${job.company} · ${job.role}`, summary:strategy, actions:result.actions || [], tags:[job.category] });
+        state.aiNotes = state.aiNotes.slice(0, 50);
+        save();
+        toast("岗位策略已生成");
+      }
+
+      function jobStrategyLocal(jobId) {
+        const job = state.jobs.find(x => x.id === jobId);
+        if (!job) return;
+        const result = localJobStrategyPreview(job);
+        const strategy = [result.strategy, result.actions?.length ? `下一步：${result.actions.join("；")}` : "", result.risks?.length ? `风险：${result.risks.join("；")}` : ""].filter(Boolean).join("\\n");
+        state.jobs = state.jobs.map(x => x.id === jobId ? { ...x, strategy, match: Number(result.match ?? x.match ?? 0), strategyUpdatedAt: new Date().toISOString() } : x);
+        state.aiNotes.unshift({ id:id(), date:today(), kind:"job", source:"local", title:`${job.company} · ${job.role}`, summary:strategy, actions:result.actions || [], tags:[job.category, "本地规则"] });
+        state.aiNotes = state.aiNotes.slice(0, 50);
+        save();
+        toast("本地岗位策略已生成");
+      }
+
+      const previousHome = home;
+      home = function() {
+        const base = previousHome();
+        const latest = state.aiNotes?.[0];
+        const noteHtml = latest ? `<div class="card span-12"><div class="section-title"><div><h2>${esc(latest.title)}</h2><p>${esc(latest.summary)}</p></div><span class="tag">${esc(latest.source === "deepseek" ? "DeepSeek" : "本地")}</span></div>${(latest.actions||[]).map((x,i)=>row(`行动 ${i+1}`, x, "next")).join("")}<div class="chips">${(latest.tags||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join("")}</div></div>` : `<div class="card span-12">${empty("生成后，这里会沉淀每天的 AI 建议，方便回看。")}</div>`;
+        return base + `<div class="grid"><section class="card span-12"><div class="section-title"><div><h2>AI 作战简报</h2><p>综合你的求职画像、岗位、待办、日志、简历和面试复盘。</p></div><button class="primary" onclick="dailyBriefAI()">生成今日作战简报</button></div></section>${noteHtml}</div>`;
+      };
+
+      const previousSettings = settings;
+      settings = function() {
+        ensureDeepSeekSettings();
+        return previousSettings().replace(
+          "<section class=\"card\"><h2>设置与数据</h2>",
+          `<section class="card"><h2>设置与数据</h2>${row("AI 当前模式", state.settings.deepseekApiKey ? "DeepSeek 已配置。DeepSeek 按钮会联网生成；本地按钮仍可离线使用。" : "DeepSeek 未配置。DeepSeek 按钮会提示配置，本地按钮可继续使用。", state.settings.deepseekApiKey ? "DeepSeek" : "本地")}`
+        ).replace(
+          "<label>DeepSeek API Key",
+          `<label>我的求职画像<textarea id="profile-text" onchange="state.settings.candidateProfile=this.value;save()">${esc(state.settings.candidateProfile)}</textarea></label><label>目标岗位<input id="target-roles" value="${esc(state.settings.targetRoles)}" onchange="state.settings.targetRoles=this.value;save()"></label><label>AI 输出偏好<textarea id="ai-pref" onchange="state.settings.aiPreference=this.value;save()">${esc(state.settings.aiPreference)}</textarea></label><label>DeepSeek API Key`
+        );
+      };
+
+      render();
+    </script>
+  </body>
+</html>
